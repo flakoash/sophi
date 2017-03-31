@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>camera</title>
+    {% load static %}
+    <style>
+        body{margin:40px;}
+        .btn-circle {
+          width: 30px;
+          height: 30px;
+          text-align: center;
+          padding: 6px 0;
+          font-size: 12px;
+          line-height: 1.428571429;
+          border-radius: 15px;
+        }
+        .btn-circle.btn-lg {
+          width: 50px;
+          height: 50px;
+          padding: 10px 16px;
+          font-size: 18px;
+          line-height: 1.33;
+          border-radius: 25px;
+        }
+        .btn-circle.btn-xl {
+          width: 70px;
+          height: 70px;
+          padding: 10px 16px;
+          font-size: 24px;
+          line-height: 1.33;
+          border-radius: 35px;
+        }
+
+    </style>
+    <!-- Bootstrap -->
+    <link href="{% static 'camera/bootstrap/dist/css/bootstrap.min.css'%}" rel="stylesheet">
+</head>
+<body>
+    <div class="col-md-12"><center><video id="video" width="80%" height="auto" autoplay></video></center></div>
+    <div class="col-md-12"><center><button type="button" id="snap" class="btn btn-default btn-circle btn-xl">o</button></center></div>
+    <canvas id="canvas" width="640" height="480"></canvas>
+    <p id="demo"></p>
+
+    <!-- jQuery -->
+    <script src="{% static 'camera/jquery/dist/jquery.min.js'%}"></script>
+    <!-- Bootstrap -->
+    <script src="{% static 'camera/bootstrap/dist/js/bootstrap.min.js'%}"></script>
+
+<script>
+
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+    var video = document.getElementById('video');
+
+    // Get access to the camera!
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        // Not adding `{ audio: true }` since we only want video now
+        navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+            video.src = window.URL.createObjectURL(stream);
+            video.play();
+        });
+    }
+
+    // Trigger photo take
+    document.getElementById("snap").addEventListener("click", function() {
+        context.drawImage(video, 0, 0, 640, 480);
+        var dataURL = canvas.toDataURL("image/png");
+        $.ajax({
+          type: "POST",
+          url: "/ajax/camera/",
+          data: {
+             imgBase64: dataURL
+          }
+        }).done(function(o) {
+          console.log('saved');
+          document.getElementById("demo").innerHTML = dataURL;
+        });
+    });
+</script>
+
+</body>
+</html>
