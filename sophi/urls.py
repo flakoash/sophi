@@ -20,7 +20,7 @@ from rest_framework_jwt.views import obtain_jwt_token, verify_jwt_token
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', views.camera,name="camera"),
+    url(r'^$', views.camera.as_view(),name="camera"),
     url(r'^ajax/camera/$', views.ajaxupload,name="uploadphoto"),
     url(r'^api-token-auth/', obtain_jwt_token),
     url(r'^api-token-verify/', verify_jwt_token),
