@@ -1,0 +1,10 @@
+Django==1.11
+django-cors-headers==2.0.2
+django-filter==1.0.2
+djangorestframework==3.6.2
+djangorestframework-jwt==1.10.0
+Markdown==2.6.8
+olefile==0.44
+Pillow==4.0.0
+PyJWT==1.4.2
+pytz==2017.2
