@@ -13,20 +13,27 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.contrib import admin
 from camera import views
 from rest_framework_jwt.views import obtain_jwt_token, verify_jwt_token
+from django.conf.urls.static import static
+from django.conf import settings
+from rest_framework import routers
+from camera.viewsets import UploadImageViewSet
 
+router = routers.DefaultRouter()
+router.register('images', UploadImageViewSet, 'images')
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', views.camera.as_view(),name="camera"),
-    url(r'^ajax/camera/$', views.ajaxupload,name="uploadphoto"),
+    url(r'^asdasd$', views.camera.as_view()),
+    url(r'^asd$', views.ajaxupload,name="uploadphoto"),
     url(r'^api-token-auth/', obtain_jwt_token),
     url(r'^api-token-verify/', verify_jwt_token),
-    url(r'^secure/', views.cameraview.as_view()),
+    url(r'^secure/', views.cameraview),
+    url(r'^', include(router.urls)),
     #curl -X POST -H "Content-Type: application/json" -d '{"username":"qwerty","password":"qwerty"}' http://localhost:8000/api-token-auth/
     #curl -X POST -H "Content-Type: application/json" -d '{"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjozLCJlbWFpbCI6IiIsInVzZXJuYW1lIjoicXdlcnR5IiwiZXhwIjoxNDkxNzUyMzI4fQ.Pyqug0pe5s5ApT3qcd-Z62J9Tg3YLno7NI12g13k8YM"}' http://localhost:8000/api-token-verify/
     #eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjozLCJlbWFpbCI6IiIsInVzZXJuYW1lIjoicXdlcnR5IiwiZXhwIjoxNDkxNzUyMzI4fQ.Pyqug0pe5s5ApT3qcd-Z62J9Tg3YLno7NI12g13k8YM
     #curl -H "Authorization: JWT <eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjozLCJlbWFpbCI6IiIsInVzZXJuYW1lIjoicXdlcnR5IiwiZXhwIjoxNDkxNzUyMzI4fQ.Pyqug0pe5s5ApT3qcd-Z62J9Tg3YLno7NI12g13k8YM>" http://localhost:8000/secure/
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

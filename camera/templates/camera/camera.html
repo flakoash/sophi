@@ -68,7 +68,7 @@
         var dataURL = canvas.toDataURL("image/png");
         $.ajax({
           type: "POST",
-          url: "/ajax/camera/",
+          url: "/camera/",
           data: {
              imgBase64: dataURL
           }
