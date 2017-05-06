@@ -1,0 +1,4 @@
+tensorflow
+
+PYTHONPATH 
+C:/SimpleCV1.3/files/opencv/build/python/2.7/;C:/OpenCV2.3/opencv/build/python/2.7/;C:/SimpleCV1.3/files/opencv/build/python/2.7/;C:/OpenCV2.3/opencv/build/python/2.7/;

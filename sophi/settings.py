@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'corsheaders',
 ]
 CORS_ORIGIN_ALLOW_ALL = True
+DATA_UPLOAD_MAX_MEMORY_SIZE = None
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

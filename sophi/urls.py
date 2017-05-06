@@ -26,12 +26,14 @@ router = routers.DefaultRouter()
 router.register('images', UploadImageViewSet, 'images')
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^asdasd$', views.camera.as_view()),
+    url(r'^camera$', views.camera.as_view()),
     url(r'^asd$', views.ajaxupload,name="uploadphoto"),
     url(r'^api-token-auth/', obtain_jwt_token),
     url(r'^api-token-verify/', verify_jwt_token),
-    url(r'^secure/', views.cameraview),
-    url(r'^', include(router.urls)),
+    url(r'^$', views.cameraview.as_view()),
+    url(r'dummy^$', views.cameraviewdummy.as_view()),
+    #url(r'^', include(router.urls)),
+
     #curl -X POST -H "Content-Type: application/json" -d '{"username":"qwerty","password":"qwerty"}' http://localhost:8000/api-token-auth/
     #curl -X POST -H "Content-Type: application/json" -d '{"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjozLCJlbWFpbCI6IiIsInVzZXJuYW1lIjoicXdlcnR5IiwiZXhwIjoxNDkxNzUyMzI4fQ.Pyqug0pe5s5ApT3qcd-Z62J9Tg3YLno7NI12g13k8YM"}' http://localhost:8000/api-token-verify/
     #eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjozLCJlbWFpbCI6IiIsInVzZXJuYW1lIjoicXdlcnR5IiwiZXhwIjoxNDkxNzUyMzI4fQ.Pyqug0pe5s5ApT3qcd-Z62J9Tg3YLno7NI12g13k8YM

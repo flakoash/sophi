@@ -3,7 +3,8 @@ import re
 import json
 from django.http import JsonResponse
 import io, base64
-#from PIL import Image
+
+from PIL import Image
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from camera.models import *
@@ -15,7 +16,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.parsers import FileUploadParser
+from random import randint
 
+dummy=['shirt','short','jeans','underwear','pants']
 # Create your views here.
 class UnsafeSessionAuthentication(SessionAuthentication):
 
@@ -29,11 +32,13 @@ class UnsafeSessionAuthentication(SessionAuthentication):
         return (user, None)
 
 class camera(APIView):
+
     #authentication_classes = (UnsafeSessionAuthentication,)
     parser_classes = (FileUploadParser,)
 
     def post(self, request, filename="asd.jpg", format=None):
-        file_obj = request.data
+        print("camera")
+        file_obj = request.POST
         # ...
         # do some stuff with uploaded file
         # ...
@@ -42,47 +47,76 @@ class camera(APIView):
         return render(request,'camera/camera.html')
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class cameraview(APIView):
+
     #authentication_classes = (JSONWebTokenAuthentication)
-    permission_classes = (IsAuthenticated,)
+    #permission_classes = (IsAuthenticated,)
     def get(self,request, format=None):
         return render(request,'camera/camera.html')
     def post(self, request, format=None):
-        url = "http://localhost:8000/raspberry_rest/"
-        headers = {'content-type': 'application/json'}
-        img64 = request.POST['imgBase64']
-        print(len(img64))
-        # f = open("temp.png", "w")
-        # f.write(img64)
-        # f.close()
-        # ImageData = base64.b64decode(img64)
-        #cam = photos()
-        #cam.user = request.user
-        #cam.photo = img64
-        #cam.save()
-        #data = {'photo': img64}
-        #r = requests.post(url, data=json.dumps(data), headers=headers)
-        return Response({'len': print(len(img64)),'type':type(img64)})
+        print("cameraview")
+        #print(request.body)
+        data = request.body.decode("utf-8")
+        json_acceptable_string = data.replace("'", "\"")
+        data = json.loads(json_acceptable_string)
+        #print(type(data))
+        data = data['image'].replace(' ', '+')
+        # print(data)
+        missing_padding = len(data) % 4
+        if missing_padding != 0:
+            data += '=' * (4 - missing_padding)
+        #print(data)
+        data = data.replace('data:image/png;base64,', '')
+        # print(data)
+        imgdata = base64.b64decode(data)
+        filename = 'some_image.png'
+        with open(filename, 'wb') as f:
+            f.write(imgdata)  # print(request.data)
+        return JsonResponse({'saved': 'ok'})
+
+class cameraviewdummy(APIView):
+
+    #authentication_classes = (JSONWebTokenAuthentication)
+    #permission_classes = (IsAuthenticated,)
+    def get(self,request, format=None):
+        return render(request,'camera/camera.html')
+    def post(self, request, format=None):
+        print("cameraview")
+        #print(request.body)
+        data = request.body.decode("utf-8")
+        json_acceptable_string = data.replace("'", "\"")
+        data = json.loads(json_acceptable_string)
+        #print(type(data))
+        data = data['image'].replace(' ', '+')
+        # print(data)
+        missing_padding = len(data) % 4
+        if missing_padding != 0:
+            data += '=' * (4 - missing_padding)
+        #print(data)
+        data = data.replace('data:image/png;base64,', '')
+        # print(data)
+        imgdata = base64.b64decode(data)
+        filename = 'some_image.png'
+        with open(filename, 'wb') as f:
+            f.write(imgdata)  # print(request.data)
+
+        return JsonResponse({'clases': dummy[randint(0,4)], 'url':})
 
 @csrf_exempt
 def ajaxupload(request):
-
-    print(request.FILES)
+    print("ajaxupload")
     print(request.POST)
-    print(request.GET)
-    #print(request.data)
-    #image_data = base64.b64decode(re.search(r'base64,(.*)', request.POST['imgBase64']).group(1))
-    #print(image_data)
-
-
-    #a = base64.b64decode(img64)
-    #cam=photos()
-    #cam.user=request.user
-    #cam.photo=img64
-    #cam.save()
-    #data={'photo':img64}
-    #r = requests.post(url, data=json.dumps(data), headers=headers)
+    data = request.POST['imgBase64'].replace(' ', '+')
+    #print(data)
+    missing_padding = len(data) % 4
+    if missing_padding != 0:
+        data += '=' * (4 - missing_padding)
+    #print(data)
+    data = data.replace('data:image/png;base64,', '')
+    #print(data)
+    imgdata = base64.b64decode(data)
+    filename = 'some_image.png'
+    with open(filename, 'wb') as f:
+        f.write(imgdata)    #print(request.data)
     return JsonResponse({'saved':'ok'})
-
-
-

@@ -62,13 +62,13 @@
         });
     }
 
-    // Trigger photo take
+
     document.getElementById("snap").addEventListener("click", function() {
         context.drawImage(video, 0, 0, 640, 480);
         var dataURL = canvas.toDataURL("image/png");
         $.ajax({
           type: "POST",
-          url: "/camera/",
+          url: "/",
           data: {
              imgBase64: dataURL
           }
