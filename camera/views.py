@@ -17,8 +17,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.parsers import FileUploadParser
 from random import randint
+import os
 
 dummy=['shirt','short','jeans','underwear','pants']
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Create your views here.
 class UnsafeSessionAuthentication(SessionAuthentication):
 
@@ -83,6 +85,8 @@ class cameraviewdummy(APIView):
         return render(request,'camera/camera.html')
     def post(self, request, format=None):
         print("cameraview")
+        ph = photos()
+        ph.save()
         #print(request.body)
         data = request.body.decode("utf-8")
         json_acceptable_string = data.replace("'", "\"")
@@ -97,16 +101,22 @@ class cameraviewdummy(APIView):
         data = data.replace('data:image/png;base64,', '')
         # print(data)
         imgdata = base64.b64decode(data)
-        filename = 'some_image.png'
+        filename = 'photos/some_image' + str(ph.id) + '.png'
+
         with open(filename, 'wb') as f:
             f.write(imgdata)  # print(request.data)
 
-        return JsonResponse({'clases': dummy[randint(0,4)], 'url':})
+        ph.photo = filename
+        ph.save()
+        print(ph.photo.url)
+        return JsonResponse({'clases': dummy[randint(0, 4)], 'url': ph.photo.url})
 
 @csrf_exempt
 def ajaxupload(request):
     print("ajaxupload")
-    print(request.POST)
+    ph = photos()
+    ph.save()
+    #print(request.POST)
     data = request.POST['imgBase64'].replace(' ', '+')
     #print(data)
     missing_padding = len(data) % 4
@@ -116,7 +126,14 @@ def ajaxupload(request):
     data = data.replace('data:image/png;base64,', '')
     #print(data)
     imgdata = base64.b64decode(data)
-    filename = 'some_image.png'
+    filename = 'photos/some_image'+str(ph.id)+'.png'
+
     with open(filename, 'wb') as f:
-        f.write(imgdata)    #print(request.data)
-    return JsonResponse({'saved':'ok'})
+        f.write(imgdata)  # print(request.data)
+
+
+    ph.photo = filename
+    ph.save()
+    print(ph.photo.url)
+    return JsonResponse({'clases': dummy[randint(0, 4)], 'url': ph.photo.url})
+

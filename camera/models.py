@@ -9,5 +9,5 @@ from django.contrib.auth.models import User
 class photos(models.Model):
 
     #user = models.ForeignKey(User,on_delete=models.CASCADE)
-    photo = models.ImageField('image')
+    photo = models.ImageField('image', upload_to='media/')
 

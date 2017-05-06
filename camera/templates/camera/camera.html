@@ -68,13 +68,13 @@
         var dataURL = canvas.toDataURL("image/png");
         $.ajax({
           type: "POST",
-          url: "/",
+          url: "/asd",
           data: {
              imgBase64: dataURL
           }
         }).done(function(o) {
           console.log('saved');
-          document.getElementById("demo").innerHTML = dataURL;
+          document.getElementById("demo").innerHTML = o.url +"-" +o.clases;
         });
     });
 </script>
