@@ -77,6 +77,7 @@ class cameraview(APIView):
             f.write(imgdata)  # print(request.data)
         return JsonResponse({'saved': 'ok'})
 
+@method_decorator(csrf_exempt, name='dispatch')
 class cameraviewdummy(APIView):
 
     #authentication_classes = (JSONWebTokenAuthentication)
@@ -84,7 +85,7 @@ class cameraviewdummy(APIView):
     def get(self,request, format=None):
         return render(request,'camera/camera.html')
     def post(self, request, format=None):
-        print("cameraview")
+        print("cameraviewdummy")
         ph = photos()
         ph.save()
         #print(request.body)
@@ -102,7 +103,7 @@ class cameraviewdummy(APIView):
         # print(data)
         imgdata = base64.b64decode(data)
         filename = 'photos/some_image' + str(ph.id) + '.png'
-
+        print(filename)
         with open(filename, 'wb') as f:
             f.write(imgdata)  # print(request.data)
 
