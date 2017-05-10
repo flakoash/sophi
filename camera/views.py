@@ -127,7 +127,8 @@ def ajaxupload(request):
     data = data.replace('data:image/png;base64,', '')
     #print(data)
     imgdata = base64.b64decode(data)
-    filename = 'photos/some_image'+str(ph.id)+'.png'
+    print (BASE_DIR)
+    filename = BASE_DIR+'/photos/some_image'+str(ph.id)+'.png'
 
     with open(filename, 'wb') as f:
         f.write(imgdata)  # print(request.data)
