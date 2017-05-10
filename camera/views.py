@@ -17,6 +17,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.parsers import FileUploadParser
 from random import randint
+#from Share_NN_models.predict_image_class import SOPHI_net
 import os
 
 dummy=['shirt','short','jeans','underwear','pants']
@@ -51,31 +52,45 @@ class camera(APIView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class cameraview(APIView):
+    # authentication_classes = (JSONWebTokenAuthentication)
+    # permission_classes = (IsAuthenticated,)
+    def get(self, request, format=None):
+        return render(request, 'camera/camera.html')
 
-    #authentication_classes = (JSONWebTokenAuthentication)
-    #permission_classes = (IsAuthenticated,)
-    def get(self,request, format=None):
-        return render(request,'camera/camera.html')
     def post(self, request, format=None):
-        print("cameraview")
-        #print(request.body)
+        print("cameraviewdummy")
+        ph = photos()
+        ph.save()
+        # print(request.body)
         data = request.body.decode("utf-8")
         json_acceptable_string = data.replace("'", "\"")
         data = json.loads(json_acceptable_string)
-        #print(type(data))
+        # print(type(data))
         data = data['image'].replace(' ', '+')
         # print(data)
         missing_padding = len(data) % 4
         if missing_padding != 0:
             data += '=' * (4 - missing_padding)
-        #print(data)
+        # print(data)
         data = data.replace('data:image/png;base64,', '')
         # print(data)
         imgdata = base64.b64decode(data)
-        filename = 'some_image.png'
+        print(BASE_DIR)
+        filename = BASE_DIR + '/photos/some_image' + str(ph.id) + '.png'
+
         with open(filename, 'wb') as f:
             f.write(imgdata)  # print(request.data)
-        return JsonResponse({'saved': 'ok'})
+
+        ph.photo = filename
+        ph.save()
+        print(ph.photo.url)
+        classes={}
+        '''nn = SOPHI_net(image_path=filename, n_top_picks=5, verbosity=False)
+        classes = nn.predict()
+        for each in classes:
+            print(each[0], ' ', each[1])
+        '''
+        return JsonResponse({'clases': classes, 'url': ph.photo.url})
 
 @method_decorator(csrf_exempt, name='dispatch')
 class cameraviewdummy(APIView):
