@@ -102,8 +102,9 @@ class cameraviewdummy(APIView):
         data = data.replace('data:image/png;base64,', '')
         # print(data)
         imgdata = base64.b64decode(data)
-        filename = 'photos/some_image' + str(ph.id) + '.png'
-        print(filename)
+        print(BASE_DIR)
+        filename = BASE_DIR + '/photos/some_image' + str(ph.id) + '.png'
+
         with open(filename, 'wb') as f:
             f.write(imgdata)  # print(request.data)
 
@@ -111,6 +112,7 @@ class cameraviewdummy(APIView):
         ph.save()
         print(ph.photo.url)
         return JsonResponse({'clases': dummy[randint(0, 4)], 'url': ph.photo.url})
+
 
 @csrf_exempt
 def ajaxupload(request):
