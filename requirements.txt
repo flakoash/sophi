@@ -1,10 +1,19 @@
+--upgrade pip
+appdirs==1.4.3
 Django==1.11
 django-cors-headers==2.0.2
 django-filter==1.0.2
 djangorestframework==3.6.2
 djangorestframework-jwt==1.10.0
 Markdown==2.6.8
+numpy==1.12.1
 olefile==0.44
+opencv-python==3.2.0.7
+packaging==16.8
 Pillow==4.0.0
+protobuf==3.1.0
 PyJWT==1.4.2
+pyparsing==2.2.0
 pytz==2017.2
+six==1.10.0
+tensorflow==0.12.0
