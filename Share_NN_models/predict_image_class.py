@@ -11,23 +11,25 @@ import tensorflow as tf
 import numpy as np
 
 class SOPHI_net:
-	def __init__(self, image_path = '', n_top_picks = 5, verbosity = False):
+	def __init__(self, image_path = '', n_top_picks = 5, verbosity = False, dir_path=''):
 		# Variables 
 		self.verbosity = verbosity
 		self.n_top_picks = n_top_picks
 		self.image_path = image_path
+		print(dir_path)
+		self.serverpath=dir_path
 		# Image 
 		if len(image_path) != 0:
 			self.get_file_extension()
 			self.img = tf.gfile.FastGFile(self.image_path, 'rb').read()
-			self.labels = [ line.rstrip() for line in tf.gfile.GFile("retrained_labels.txt") ]
+			self.labels = [ line.rstrip() for line in tf.gfile.GFile(dir_path+"retrained_labels.txt") ]
 		else:
 			print('No image path provided')
 			sys.exit()
 		# Really fast QA
 		if self.fast_QA() != True:
 			print('Conditions not met')
-			sys.exit()
+			#sys.exit()
 
 	def fast_QA(self):
 		# Img
@@ -35,7 +37,7 @@ class SOPHI_net:
 		img_qa = False if (len(img__.shape) != 3) and (img__.shape[0] < 120 and img__.shape[1] < 120) else True
 		# Graphs
 		files = [each for each in os.listdir('.')]
-		graph_qa = True if ( ('retrained_labels.txt' in files) and ('retrained_graph.pb' in files) ) else False
+		graph_qa = True if ( (self.serverpath+'retrained_labels.txt' in files) and (self.serverpath+'retrained_graph.pb' in files) ) else False
 		# ----
 		return True if img_qa and graph_qa else False
 
@@ -53,7 +55,7 @@ class SOPHI_net:
 		return ( self.img - np.mean(self.img[:,:,:]) ) / np.std(self.img[:,:,:]) if z_norm else ( self.img  - np.amin(self.img) ) / (np.amax(self.img) - np.amin(self.img))
 
 	def predict(self):
-		with tf.gfile.FastGFile("retrained_graph.pb", 'rb') as f:
+		with tf.gfile.FastGFile(self.serverpath+"retrained_graph.pb", 'rb') as f:
 		    graph_def = tf.GraphDef()
 		    graph_def.ParseFromString(f.read())
 		    _ = tf.import_graph_def(graph_def, name='')
