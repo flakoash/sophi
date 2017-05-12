@@ -17,7 +17,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.parsers import FileUploadParser
 from random import randint
-#from Share_NN_models.predict_image_class import SOPHI_net
+from Share_NN_models.predict_image_class import SOPHI_net
 import os
 
 dummy=['shirt','short','jeans','underwear','pants']
@@ -85,11 +85,11 @@ class cameraview(APIView):
         ph.save()
         print(ph.photo.url)
         classes={}
-        '''nn = SOPHI_net(image_path=filename, n_top_picks=5, verbosity=False)
+        nn = SOPHI_net(image_path=filename, n_top_picks=5, verbosity=False)
         classes = nn.predict()
         for each in classes:
             print(each[0], ' ', each[1])
-        '''
+
         return JsonResponse({'clases': classes, 'url': ph.photo.url})
 
 @method_decorator(csrf_exempt, name='dispatch')
