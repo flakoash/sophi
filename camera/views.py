@@ -58,7 +58,7 @@ class cameraview(APIView):
         return render(request, 'camera/camera.html')
 
     def post(self, request, format=None):
-        print("cameraviewdummy")
+        print("cameraview")
         ph = photos()
         ph.save()
         # print(request.body)
@@ -85,12 +85,11 @@ class cameraview(APIView):
         ph.save()
         print(ph.photo.url)
         classes={}
-        nn = SOPHI_net(image_path=filename, n_top_picks=5, verbosity=False)
+        nn = SOPHI_net(image_path=BASE_DIR + "/Share_NN_models/test1.jpg", n_top_picks=5, verbosity=True,
+                       dir_path=BASE_DIR + "/Share_NN_models/")
         classes = nn.predict()
-        for each in classes:
-            print(each[0], ' ', each[1])
         
-        return JsonResponse({'clases': classes, 'url': ph.photo.url})
+        return JsonResponse({'clases': str(classes), 'url': ph.photo.url})
 
 @method_decorator(csrf_exempt, name='dispatch')
 class cameraviewdummy(APIView):
