@@ -17,7 +17,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.parsers import FileUploadParser
 from random import randint
-#from Share_NN_models.predict_image_class import SOPHI_net
+from Share_NN_models.predict_image_class import SOPHI_net
 import os
 
 dummy=['shirt','short','jeans','underwear','pants']
@@ -75,9 +75,9 @@ class cameraview(APIView):
         data = data.replace('data:image/png;base64,', '')
         # print(data)
         imgdata = base64.b64decode(data)
-        print(BASE_DIR)
-        filename = BASE_DIR + '/photos/some_image' + str(ph.id) + '.png'
 
+        filename = BASE_DIR + '/photos/some_image' + str(ph.id) + '.png'
+        #print("image saved at: " + filename)
         with open(filename, 'wb') as f:
             f.write(imgdata)  # print(request.data)
 
@@ -85,8 +85,8 @@ class cameraview(APIView):
         ph.save()
         print(ph.photo.url)
         classes={}
-        #nn = SOPHI_net(image_path=BASE_DIR + "/Share_NN_models/test1.jpg", n_top_picks=5, verbosity=True, dir_path=BASE_DIR + "/Share_NN_models/")
-        #classes = nn.predict()
+        nn = SOPHI_net(image_path=filename, n_top_picks=5, verbosity=True, dir_path=BASE_DIR + "/Share_NN_models/")
+        classes = nn.predict()
         
         return JsonResponse({'clases': str(classes), 'url': ph.photo.url})
 
@@ -153,8 +153,8 @@ def ajaxupload(request):
     ph.save()
     print(ph.photo.url)
     classes={}
-    #nn=SOPHI_net(image_path=BASE_DIR+"/Share_NN_models/test1.jpg",n_top_picks=5,verbosity=True,dir_path=BASE_DIR+"/Share_NN_models/")
-    #classes=nn.predict()
+    nn=SOPHI_net(image_path=filename,n_top_picks=5,verbosity=True,dir_path=BASE_DIR+"/Share_NN_models/")
+    classes=nn.predict()
     print(classes)
     return JsonResponse({'clases': str(classes), 'url': ph.photo.url})
 
