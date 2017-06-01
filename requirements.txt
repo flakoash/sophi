@@ -8,3 +8,5 @@ olefile==0.44
 Pillow==4.0.0
 PyJWT==1.4.2
 pytz==2017.2
+google-cloud-vision
+python-firebase
