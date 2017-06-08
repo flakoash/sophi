@@ -30,7 +30,7 @@ urlpatterns = [
     url(r'^asd$', views.ajaxupload,name="uploadphoto"),
     url(r'^api-token-auth/', obtain_jwt_token),
     url(r'^api-token-verify/', verify_jwt_token),
-    url(r'^$', views.cameraview.as_view()),
+    url(r'^image/', views.cameraview.as_view()),
     url(r'dummy^$', views.cameraviewdummy.as_view()),
     #url(r'^', include(router.urls)),
 
