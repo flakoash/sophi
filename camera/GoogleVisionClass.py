@@ -10,15 +10,13 @@ class GoogleVision:
 		# Read file 
 		with io.open(self.image_path, 'rb') as image_file:
 			content = image_file.read()
-			image = self.vision_client.image(content=content) 
+			image = self.vision_client.image(content=content)
 
 		# Label detection
 		labels = image.detect_labels()
 
 		# Store labels
-		return_labels = []  
-		for each in labels:
-			return_labels.append(each)
+		return_labels = [each.description for each in labels]
 
 		# Return labels 
 		return return_labels

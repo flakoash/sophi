@@ -19,7 +19,7 @@ from rest_framework.views import APIView
 from rest_framework.parsers import FileUploadParser
 
 from SOPHINET.SOPHINET_class import SOPHINET
-from GoogleVisionClass import GoogleVision
+from camera.GoogleVisionClass import GoogleVision
 
 dummy=['shirt','short','jeans','underwear','pants']
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -76,12 +76,19 @@ class cameraview(APIView):
         labels = gglv.predict()
 
         ''' L2. SOPHI '''
-        #nn = SOPHINET(image_path = dst+'/'+file.name, class_ = 'SHOES', n_top_picks = 5, verbosity = False)
-        #logits = {class_: prob_ for class_, prob_ in nn.predict()}
-        logits = {a:b for a,b in [('a',0.5),('b',0.8),('c',0.9)]}
+        nn = SOPHINET(image_path = image_path, class_ = 'SHOES', n_top_picks = 5, verbosity = False)
+        logits = {class_: prob_ for class_, prob_ in nn.predict()}
+        #logits = {a:b for a,b in [('a',0.5),('b',0.8),('c',0.9)]}
         
+        print('-------------------------GOOGLE VISION---------------------')
+        print(labels)
+        print('------------------------------------------------------------')
+        print('---------------------------SOPHINET-------------------------')
+        print(logits)
+        print('------------------------------------------------------------')
+
         ''' Response '''
-        return JsonResponse({'classes': logits})
+        return JsonResponse({'classes': 'ok'})
 
 @method_decorator(csrf_exempt, name='dispatch')
 class cameraviewdummy(APIView):
