@@ -88,7 +88,66 @@ class cameraview(APIView):
         print('------------------------------------------------------------')
 
         ''' Response '''
-        return JsonResponse({'classes': 'ok'})
+
+        '''{
+            data: {
+                isClothe: true
+                classes: []
+            }
+        }'''
+
+        return JsonResponse({'data': {'isClothe': True, 'classes': labels} })
+
+@method_decorator(csrf_exempt, name='dispatch')
+class cameraimage2(APIView):
+    # authentication_classes = (JSONWebTokenAuthentication)
+    # permission_classes = (IsAuthenticated,)
+    def get(self, request, format=None):
+        #return render(request, 'camera/camera.html')
+        return render(request, 'PostMultiPartImage.html')
+
+    def post(self, request, format=None):
+        ph = photos()
+        ph.save()
+        #print(request.body)
+        data = request.body.decode("utf-8")
+        json_acceptable_string = data.replace("'", "\"")
+        data = json.loads(json_acceptable_string)
+        #print(type(data))
+        data = data['image'].replace(' ', '+')
+        # print(data)
+        missing_padding = len(data) % 4
+        if missing_padding != 0:
+            data += '=' * (4 - missing_padding)
+        #print(data)
+        data = data.replace('data:image/png;base64,', '')
+        # print(data)
+        imgdata = base64.b64decode(data)
+        print(BASE_DIR)
+        filename = BASE_DIR + '/photos/some_image' + str(ph.id) + '.png'
+
+        with open(filename, 'wb') as f:
+            f.write(imgdata)  # print(request.data)
+
+        ''' L1. Google Cloud Vision '''
+        print('google vision ....')
+        gglv = GoogleVision(filename)
+        labels = gglv.predict()
+
+        print('sophinet ...')
+        ''' L2. SOPHI '''
+        '''nn = SOPHINET(image_path = filename, class_ = 'SHOES', n_top_picks = 5, verbosity = False)
+        logits = {class_: prob_ for class_, prob_ in nn.predict()}
+        labels = []
+        print('done!')
+        list = [ str(str(value)+":"+str(key)) for value, key in logits.items() ]
+        labels.append(list)'''
+
+        ph.photo = filename
+        ph.save()
+        print(ph.photo.url)
+        print(labels)
+        return JsonResponse({'classes': labels, 'url': ph.photo.url})
 
 @method_decorator(csrf_exempt, name='dispatch')
 class cameraviewdummy(APIView):
@@ -98,7 +157,6 @@ class cameraviewdummy(APIView):
         #return JsonResponse({'result':'ok'})
         return render(request,'camera/camera.html')
     def post(self, request, format=None):
-        print("cameraviewdummy")
         ph = photos()
         ph.save()
         #print(request.body)
@@ -157,4 +215,3 @@ def ajaxupload(request):
     #classes=nn.predict()
     print(classes)
     return JsonResponse({'clases': str(classes), 'url': ph.photo.url})
-

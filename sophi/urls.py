@@ -32,6 +32,7 @@ urlpatterns = [
     url(r'^api-token-verify/', verify_jwt_token),
     url(r'^image/', views.cameraview.as_view()),
     url(r'dummy^$', views.cameraviewdummy.as_view()),
+    url(r'^$', views.cameraimage2.as_view())
     #url(r'^', include(router.urls)),
 
     #curl -X POST -H "Content-Type: application/json" -d '{"username":"qwerty","password":"qwerty"}' http://localhost:8000/api-token-auth/
