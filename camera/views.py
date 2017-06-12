@@ -18,11 +18,20 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.parsers import FileUploadParser
 
-from SOPHINET.SOPHINET_class import SOPHINET
+from SOPHINET.BAGS import BAGS
+from SOPHINET.SHOES import SHOES
+from SOPHINET.DOWNBODY import DOWNBODY
+from SOPHINET.UPPERBODY import UPPERBODY
 from camera.GoogleVisionClass import GoogleVision
 
 dummy=['shirt','short','jeans','underwear','pants']
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+bags = BAGS(False, BASE_DIR+'SOPHINET'+'BAGS')
+upperbody = UPPERBODY(False, BASE_DIR+'SOPHINET'+'UPPERBODY')
+downbody = DOWNBODY(False, BASE_DIR+'SOPHINET'+'DOWNBODY')
+shoes = SHOES(False, BASE_DIR+'SOPHINET'+'SHOES')
+
 # Create your views here.
 class UnsafeSessionAuthentication(SessionAuthentication):
 
@@ -134,20 +143,57 @@ class cameraimage2(APIView):
         gglv = GoogleVision(filename)
         labels = gglv.predict()
 
+	clothe = True
+
         print('sophinet ...')
         ''' L2. SOPHI '''
-        '''nn = SOPHINET(image_path = filename, class_ = 'SHOES', n_top_picks = 5, verbosity = False)
-        logits = {class_: prob_ for class_, prob_ in nn.predict()}
-        labels = []
-        print('done!')
-        list = [ str(str(value)+":"+str(key)) for value, key in logits.items() ]
-        labels.append(list)'''
+        #nn = SOPHINET(image_path = filename, class_ = 'SHOES', n_top_picks = 5, verbosity = False)
+        #logits = {class_: prob_ for class_, prob_ in nn.predict()}
+
+	l0 = shoes.predict(filename)
+	l1 = upperbody.predict(filename)
+	l2 = downbody.predict(filename)
+	l3 = bags.predict(filename)
+
+	print(labels, l0, l1, l2, l3)
+	l_ = labels+l0+l1+l2+l3
+
+	human_strings = [each[0] for each in l_]
+	scores = [each[1] for each in l_]
+
+	for i in range(len(human_strings)):
+		for j in range(human_strings)-1):
+			if scores[i] > scores[j]:
+				aux = scores[j]
+				scores[j] = scores[i]
+				scores[i] = aux
+				aux = human_strings[j]
+				human_strings[j] = human_strings[i]
+				human_strings[i] = aux
+
+	max_ = max(scores)
+	index_ = scores.index(max_)
+
+	most_likely = [each for each in human_strings[:5])
+
+	#labels = []
+        #print('done!')
+        #list = [ str(str(value)+":"+str(key)) for value, key in logits.items() ]
+        #labels.append(list)
 
         ph.photo = filename
         ph.save()
         print(ph.photo.url)
         print(labels)
-        return JsonResponse({'classes': labels, 'url': ph.photo.url})
+	json_ = {{
+	    message: "image uploaded",
+    	    data : {
+      		isClothe : clothe,
+      		mostLikely : human_strings[index_],
+      		otherPossibilities : most_likely
+	    }
+	  }}
+        return JsonResponse(json_)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class cameraviewdummy(APIView):

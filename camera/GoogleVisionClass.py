@@ -16,7 +16,7 @@ class GoogleVision:
 		labels = image.detect_labels()
 
 		# Store labels
-		return_labels = [each.description for each in labels]
+		return_labels = [(each.description, each.score) for each in labels]
 
 		# Return labels 
 		return return_labels
