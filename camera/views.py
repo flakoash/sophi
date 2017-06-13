@@ -27,10 +27,9 @@ from camera.GoogleVisionClass import GoogleVision
 dummy=['shirt','short','jeans','underwear','pants']
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-bags = BAGS(False, BASE_DIR+'SOPHINET'+'BAGS')
-upperbody = UPPERBODY(False, BASE_DIR+'SOPHINET'+'UPPERBODY')
-downbody = DOWNBODY(False, BASE_DIR+'SOPHINET'+'DOWNBODY')
-shoes = SHOES(False, BASE_DIR+'SOPHINET'+'SHOES')
+bags = BAGS(False, BASE_DIR+'/SOPHINET/GRAPHS/'+'BAGS')
+upperbody = UPPERBODY(False, BASE_DIR+'/SOPHINET/GRAPHS/'+'UPPERBODY')
+downbody = DOWNBODY(False, BASE_DIR+'/SOPHINET/GRAPHS/'+'DOWNBODY')
 
 # Create your views here.
 class UnsafeSessionAuthentication(SessionAuthentication):
@@ -133,66 +132,63 @@ class cameraimage2(APIView):
         # print(data)
         imgdata = base64.b64decode(data)
         print(BASE_DIR)
-        filename = BASE_DIR + '/photos/some_image' + str(ph.id) + '.png'
-
+        filename = BASE_DIR + '/photos/some_image' + str(ph.id) + '.jpg'
         with open(filename, 'wb') as f:
-            f.write(imgdata)  # print(request.data)
+            f.write(imgdata)
 
         ''' L1. Google Cloud Vision '''
         print('google vision ....')
-        gglv = GoogleVision(filename)
-        labels = gglv.predict()
+        #gglv = GoogleVision(filename)
+        labels = [('something', 0.01)] #gglv.predict()
 
-	clothe = True
+        clothe = True
 
         print('sophinet ...')
         ''' L2. SOPHI '''
         #nn = SOPHINET(image_path = filename, class_ = 'SHOES', n_top_picks = 5, verbosity = False)
         #logits = {class_: prob_ for class_, prob_ in nn.predict()}
+        
+        shoes = SHOES(False, BASE_DIR+'/SOPHINET/GRAPHS/'+'SHOES')
 
-	l0 = shoes.predict(filename)
-	l1 = upperbody.predict(filename)
-	l2 = downbody.predict(filename)
-	l3 = bags.predict(filename)
+        l0 = shoes.predict(filename)
+        l1 = [('d', 0.05)] #upperbody.predict(filename)
+        l2 = [('a', 0.2)] #downbody.predict(filename)
+        l3 = [('e', 0.3)] #bags.predict(filename)
 
-	print(labels, l0, l1, l2, l3)
-	l_ = labels+l0+l1+l2+l3
+        print(labels, l0, l1, l2, l3)
+        l_ = labels+l0+l1+l2+l3
 
-	human_strings = [each[0] for each in l_]
-	scores = [each[1] for each in l_]
+        human_strings = [each[0] for each in l_]
+        scores = [each[1] for each in l_]
 
-	for i in range(len(human_strings)):
-		for j in range(human_strings)-1):
-			if scores[i] > scores[j]:
-				aux = scores[j]
-				scores[j] = scores[i]
-				scores[i] = aux
-				aux = human_strings[j]
-				human_strings[j] = human_strings[i]
-				human_strings[i] = aux
+        for i in range(len(human_strings)):
+            for j in range(len(human_strings)-1):
+                if scores[i] > scores[j]:
+                    aux = scores[j]
+                    scores[j] = scores[i]
+                    scores[i] = aux
+                    aux = human_strings[j]
+                    human_strings[j] = human_strings[i]
+                    human_strings[i] = aux
 
-	max_ = max(scores)
-	index_ = scores.index(max_)
+        max_ = max(scores)
+        index_ = scores.index(max_)
 
-	most_likely = [each for each in human_strings[:5])
-
-	#labels = []
-        #print('done!')
-        #list = [ str(str(value)+":"+str(key)) for value, key in logits.items() ]
-        #labels.append(list)
+        most_likely = [each for each in human_strings[:5]]
+        print(most_likely)
 
         ph.photo = filename
         ph.save()
-        print(ph.photo.url)
-        print(labels)
-	json_ = {{
-	    message: "image uploaded",
-    	    data : {
-      		isClothe : clothe,
-      		mostLikely : human_strings[index_],
-      		otherPossibilities : most_likely
-	    }
-	  }}
+        json_ = {
+        'message': "image uploaded",
+        'data' : {
+        'isClothe' : clothe,
+        'mostLikely' : human_strings[index_],
+        'otherPossibilities' : [most_likely[0], most_likely[1], most_likely[2]]
+        }
+        }
+
+        print(json_)
         return JsonResponse(json_)
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -261,3 +257,4 @@ def ajaxupload(request):
     #classes=nn.predict()
     print(classes)
     return JsonResponse({'clases': str(classes), 'url': ph.photo.url})
+
